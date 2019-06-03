@@ -5,7 +5,7 @@ Analyse tcp packet delays in a PCAP file
 Usage: __file__ -s 10.80.250.21 -t 40.101.92.194 capture.cap
 '''
 
-import sys
+import os, sys
 import argparse
 import pyshark
 from ipaddress import ip_network, ip_address
@@ -32,17 +32,16 @@ args = parser.parse_args()
 if args.version:
     print(f'{sys.argv[0]} version {__version__}', file=sys.stderr)
     exit(0)
-'''
-src = args.source
-delay = float(args.delay)
-proxy = args.proxy
-dst = args.target
-'''
 
-# Open saved trace file
-cap = pyshark.FileCapture(args.file, display_filter='tcp')
 
 if __name__ == '__main__':
+
+    # Open saved trace file
+    if not os.path.isfile(args.file):
+        print(f"'{args.file}' does not exist", file=sys.stderr)
+        exit(-1)
+    cap = pyshark.FileCapture(args.file, display_filter='tcp')
+
     print(f'Using {args.proxy} as the proxy network and {args.delay} as maximum accepted delay ...')
     flow = { }
     for pkt in cap:
